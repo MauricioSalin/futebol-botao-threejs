@@ -108,6 +108,9 @@ initScene = function () {
 
   scene.add(dirLight);
 
+  // const axesHelper = new THREE.AxesHelper(100);
+  // scene.add(axesHelper);
+
   intersectPlane = new THREE.Mesh(
     new THREE.PlaneGeometry(150, 150),
     new THREE.MeshBasicMaterial({ opacity: 0, transparent: true })
