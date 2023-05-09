@@ -2,7 +2,6 @@ Physijs.scripts.worker = "js/physijs_worker.js";
 Physijs.scripts.ammo = "/js/ammo.js";
 
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import { FlyControls } from "three/examples/jsm/controls/FlyControls.js";
 
 let initScene,
   initEventHandling,
@@ -17,16 +16,16 @@ let initScene,
   mousePosition = new THREE.Vector3(),
   playerOffset = new THREE.Vector3();
 
-const fieldLargura = 60;
-const fieldComprimento = 110;
+const fieldWidth = 60;
+const fieldLength = 110;
 
-const lineLargura = 1;
-const lineAltura = 0.05;
+const lineWidth = 1;
+const lineHeigth = 0.05;
 
-const goalLargura = 18;
+const goalWidth = 18;
 
-const areaComprimento = fieldComprimento / 6;
-const areaLargura = 38;
+const areaLength = fieldLength / 6;
+const areaWidth = 38;
 
 const rotationX = -Math.PI / 2;
 
@@ -43,18 +42,7 @@ initScene = function () {
   renderer.shadowMapSoft = true;
   document.getElementById("viewport").appendChild(renderer.domElement);
 
-  renderStats = new Stats();
-  renderStats.domElement.style.position = "absolute";
-  renderStats.domElement.style.top = "1px";
-  renderStats.domElement.style.zIndex = 100;
-  document.getElementById("viewport").appendChild(renderStats.domElement);
-
-  let physicsStats = new Stats();
-  physicsStats.domElement.style.position = "absolute";
-  physicsStats.domElement.style.top = "50px";
-  physicsStats.domElement.style.zIndex = 100;
-  document.getElementById("viewport").appendChild(physicsStats.domElement);
-
+  //CRIA A CENA
   scene = new Physijs.Scene({ fixedTimeStep: 1 / 120 });
 
   scene.setGravity(new THREE.Vector3(0, -350, 0));
@@ -72,7 +60,6 @@ initScene = function () {
       vector.y = 0;
       selectedPlayer.setLinearVelocity(vector);
 
-      // Reactivate all of the blocks
       vector.set(0, 0, 0);
 
       for (i = 0; i < blocks.length; i++) {
@@ -140,7 +127,6 @@ render = () => {
   requestAnimationFrame(render);
 
   renderer.render(scene, camera);
-  renderStats.update();
 };
 
 const createField = () => {
@@ -154,17 +140,17 @@ const createField = () => {
 
   const borderMaterial = Physijs.createMaterial(
     new THREE.MeshLambertMaterial({ map: loader.load("images/wood.jpg") }),
-    0.9, // high friction
-    0.2 // low restitution
+    0.9,
+    0.2
   );
   borderMaterial.map.wrapS = borderMaterial.map.wrapT = THREE.RepeatWrapping;
   borderMaterial.map.repeat.set(5, 5);
 
   // CAMPO
   let field = new Physijs.BoxMesh(
-    new THREE.BoxGeometry(fieldComprimento + 10, 1, fieldLargura + 10),
+    new THREE.BoxGeometry(fieldLength + 10, 1, fieldWidth + 10),
     fieldMaterial,
-    0, // mass
+    0,
     { restitution: 0.2, friction: 0.8 }
   );
 
@@ -177,15 +163,11 @@ const createField = () => {
 
   // BORDAS
   const createBorder = (x, y, z) =>
-    new Physijs.BoxMesh(
-      new THREE.BoxGeometry(x, y, z),
-      borderMaterial,
-      0 // mass
-    );
+    new Physijs.BoxMesh(new THREE.BoxGeometry(x, y, z), borderMaterial, 0);
 
-  let border1 = createBorder(borderWidth, borderHeight, fieldLargura + 10);
+  let border1 = createBorder(borderWidth, borderHeight, fieldWidth + 10);
 
-  border1.position.x = fieldComprimento / 2 + 6;
+  border1.position.x = fieldLength / 2 + 6;
   border1.position.y = borderHeight / 4;
 
   border1.receiveShadow = true;
@@ -193,9 +175,9 @@ const createField = () => {
 
   scene.add(border1);
 
-  let border2 = createBorder(borderWidth, borderHeight, fieldLargura + 10);
+  let border2 = createBorder(borderWidth, borderHeight, fieldWidth + 10);
 
-  border2.position.x = -fieldComprimento / 2 - 6;
+  border2.position.x = -fieldLength / 2 - 6;
   border2.position.y = borderHeight / 4;
 
   border2.receiveShadow = true;
@@ -203,13 +185,9 @@ const createField = () => {
 
   scene.add(border2);
 
-  const border3 = createBorder(
-    fieldComprimento + 14,
-    borderHeight,
-    borderWidth
-  );
+  const border3 = createBorder(fieldLength + 14, borderHeight, borderWidth);
 
-  border3.position.z = fieldLargura / 2 + 6;
+  border3.position.z = fieldWidth / 2 + 6;
   border3.position.y = borderHeight / 4;
 
   border3.receiveShadow = true;
@@ -217,13 +195,9 @@ const createField = () => {
 
   scene.add(border3);
 
-  const border4 = createBorder(
-    fieldComprimento + 14,
-    borderHeight,
-    borderWidth
-  );
+  const border4 = createBorder(fieldLength + 14, borderHeight, borderWidth);
 
-  border4.position.z = -fieldLargura / 2 - 6;
+  border4.position.z = -fieldWidth / 2 - 6;
   border4.position.y = borderHeight / 4;
 
   border4.receiveShadow = true;
@@ -235,43 +209,43 @@ const createField = () => {
   const createLine = (x, y, z) =>
     new THREE.Mesh(new THREE.BoxGeometry(x, y, z), defaultMaterial);
 
-  const midFieldLine = createLine(lineLargura, lineAltura, fieldLargura);
+  const midFieldLine = createLine(lineWidth, lineHeigth, fieldWidth);
 
   midFieldLine.receiveShadow = true;
   midFieldLine.castShadow = true;
   scene.add(midFieldLine);
 
-  const gk1FieldLine = createLine(lineLargura, lineAltura, fieldLargura + 1);
+  const gk1FieldLine = createLine(lineWidth, lineHeigth, fieldWidth + 1);
 
-  gk1FieldLine.position.x = fieldComprimento / 2;
-  gk1FieldLine.position.y = lineAltura;
+  gk1FieldLine.position.x = fieldLength / 2;
+  gk1FieldLine.position.y = lineHeigth;
 
   gk1FieldLine.receiveShadow = true;
   gk1FieldLine.castShadow = true;
   scene.add(gk1FieldLine);
 
-  const gk2FieldLine = createLine(lineLargura, lineAltura, fieldLargura + 1);
+  const gk2FieldLine = createLine(lineWidth, lineHeigth, fieldWidth + 1);
 
-  gk2FieldLine.position.x = -fieldComprimento / 2;
-  gk2FieldLine.position.y = lineAltura;
+  gk2FieldLine.position.x = -fieldLength / 2;
+  gk2FieldLine.position.y = lineHeigth;
 
   gk2FieldLine.receiveShadow = true;
   gk2FieldLine.castShadow = true;
   scene.add(gk2FieldLine);
 
-  const side1FieldLine = createLine(fieldComprimento, lineAltura, lineLargura);
+  const side1FieldLine = createLine(fieldLength, lineHeigth, lineWidth);
 
-  side1FieldLine.position.z = fieldLargura / 2;
-  side1FieldLine.position.y = lineAltura;
+  side1FieldLine.position.z = fieldWidth / 2;
+  side1FieldLine.position.y = lineHeigth;
 
   side1FieldLine.receiveShadow = true;
   side1FieldLine.castShadow = true;
   scene.add(side1FieldLine);
 
-  const side2FieldLine = createLine(fieldComprimento, lineAltura, lineLargura);
+  const side2FieldLine = createLine(fieldLength, lineHeigth, lineWidth);
 
-  side2FieldLine.position.z = -fieldLargura / 2;
-  side2FieldLine.position.y = lineAltura;
+  side2FieldLine.position.z = -fieldWidth / 2;
+  side2FieldLine.position.y = lineHeigth;
 
   side2FieldLine.receiveShadow = true;
   side2FieldLine.castShadow = true;
@@ -282,13 +256,13 @@ const createField = () => {
     new Physijs.CylinderMesh(
       new THREE.CylinderGeometry(x, y, z),
       defaultMaterial,
-      0 // mass
+      0
     );
 
   let beam1 = createBeam(0.3, 0.3, 18.5);
 
   beam1.position.y = 7.8;
-  beam1.position.x = -fieldComprimento / 2;
+  beam1.position.x = -fieldLength / 2;
   beam1.rotation.x = rotationX;
 
   beam1.castShadow = true;
@@ -297,9 +271,9 @@ const createField = () => {
 
   let beam2 = createBeam(0.3, 0.3, 8);
 
-  beam2.position.z = goalLargura / 2;
+  beam2.position.z = goalWidth / 2;
   beam2.position.y = 4;
-  beam2.position.x = -fieldComprimento / 2;
+  beam2.position.x = -fieldLength / 2;
 
   beam2.castShadow = true;
   beam2.receiveShadow = true;
@@ -307,9 +281,9 @@ const createField = () => {
 
   let beam3 = createBeam(0.3, 0.3, 8);
 
-  beam3.position.z = -goalLargura / 2;
+  beam3.position.z = -goalWidth / 2;
   beam3.position.y = 4;
-  beam3.position.x = -fieldComprimento / 2;
+  beam3.position.x = -fieldLength / 2;
 
   beam3.castShadow = true;
   beam3.receiveShadow = true;
@@ -318,7 +292,7 @@ const createField = () => {
   let beam4 = createBeam(0.3, 0.3, 18.5);
 
   beam4.position.y = 7.8;
-  beam4.position.x = fieldComprimento / 2;
+  beam4.position.x = fieldLength / 2;
   beam4.rotation.x = rotationX;
 
   beam4.castShadow = true;
@@ -327,9 +301,9 @@ const createField = () => {
 
   let beam5 = createBeam(0.3, 0.3, 8);
 
-  beam5.position.z = goalLargura / 2;
+  beam5.position.z = goalWidth / 2;
   beam5.position.y = 4;
-  beam5.position.x = fieldComprimento / 2;
+  beam5.position.x = fieldLength / 2;
 
   beam5.castShadow = true;
   beam5.receiveShadow = true;
@@ -337,9 +311,9 @@ const createField = () => {
 
   let beam6 = createBeam(0.3, 0.3, 8);
 
-  beam6.position.z = -goalLargura / 2;
+  beam6.position.z = -goalWidth / 2;
   beam6.position.y = 4;
-  beam6.position.x = fieldComprimento / 2;
+  beam6.position.x = fieldLength / 2;
 
   beam6.castShadow = true;
   beam6.receiveShadow = true;
@@ -351,7 +325,7 @@ const createField = () => {
     new THREE.MeshPhongMaterial({ color: 0xffffff, side: THREE.DoubleSide })
   );
 
-  centralRing.position.y = lineAltura;
+  centralRing.position.y = lineHeigth;
   centralRing.rotation.x = rotationX;
 
   centralRing.castShadow = true;
@@ -363,92 +337,81 @@ const createField = () => {
     new THREE.MeshPhongMaterial({ color: 0xffffff })
   );
 
-  centralCircle.position.y = lineAltura;
+  centralCircle.position.y = lineHeigth;
   centralCircle.rotation.x = rotationX;
 
   centralCircle.castShadow = true;
   centralCircle.receiveShadow = true;
   scene.add(centralCircle);
 
-  //AREA DIREITA
-  const rightAreaCenterLine = new THREE.Mesh(
-    new THREE.BoxGeometry(lineLargura, areaLargura, lineAltura),
-    new THREE.MeshPhongMaterial({ color: 0xffffff })
-  );
+  //CRIAÇÃO DAS AREAS
+  const createArea = (x, y, z) =>
+    new THREE.Mesh(
+      new THREE.BoxGeometry(x, y, z),
+      new THREE.MeshPhongMaterial({ color: 0xffffff })
+    );
 
-  rightAreaCenterLine.position.y = lineAltura;
+  //AREA DIREITA
+  const rightAreaCenterLine = createArea(lineWidth, areaWidth, lineHeigth);
+
+  rightAreaCenterLine.position.y = lineHeigth;
   rightAreaCenterLine.rotation.x = rotationX;
-  rightAreaCenterLine.position.x = -(fieldComprimento / 2 - areaComprimento);
+  rightAreaCenterLine.position.x = -(fieldLength / 2 - areaLength);
 
   rightAreaCenterLine.castShadow = true;
   rightAreaCenterLine.receiveShadow = true;
   scene.add(rightAreaCenterLine);
 
-  const rightAreaSupLine = new THREE.Mesh(
-    new THREE.BoxGeometry(areaComprimento, lineLargura, lineAltura),
-    new THREE.MeshPhongMaterial({ color: 0xffffff })
-  );
+  const rightAreaSupLine = createArea(areaLength, lineWidth, lineHeigth);
 
-  rightAreaSupLine.position.y = lineAltura;
+  rightAreaSupLine.position.y = lineHeigth;
   rightAreaSupLine.rotation.x = rotationX;
-  rightAreaSupLine.position.x = -(fieldComprimento / 2 - areaComprimento / 2);
-  rightAreaSupLine.position.z = -(areaLargura / 2) + 0.5;
+  rightAreaSupLine.position.x = -(fieldLength / 2 - areaLength / 2);
+  rightAreaSupLine.position.z = -(areaWidth / 2) + 0.5;
 
   rightAreaSupLine.castShadow = true;
   rightAreaSupLine.receiveShadow = true;
   scene.add(rightAreaSupLine);
 
-  const rightAreaInfLine = new THREE.Mesh(
-    new THREE.BoxGeometry(areaComprimento, lineLargura, lineAltura),
-    new THREE.MeshPhongMaterial({ color: 0xffffff })
-  );
+  const rightAreaInfLine = createArea(areaLength, lineWidth, lineHeigth);
 
-  rightAreaInfLine.position.y = lineAltura;
+  rightAreaInfLine.position.y = lineHeigth;
   rightAreaInfLine.rotation.x = rotationX;
-  rightAreaInfLine.position.x = -(fieldComprimento / 2 - areaComprimento / 2);
-  rightAreaInfLine.position.z = areaLargura / 2 - 0.5;
+  rightAreaInfLine.position.x = -(fieldLength / 2 - areaLength / 2);
+  rightAreaInfLine.position.z = areaWidth / 2 - 0.5;
 
   rightAreaInfLine.castShadow = true;
   rightAreaInfLine.receiveShadow = true;
   scene.add(rightAreaInfLine);
 
   //AREA ESQUERDA
-  const leftAreaCenterLine = new THREE.Mesh(
-    new THREE.BoxGeometry(lineLargura, areaLargura, lineAltura),
-    new THREE.MeshPhongMaterial({ color: 0xffffff })
-  );
+  const leftAreaCenterLine = createArea(lineWidth, areaWidth, lineHeigth);
 
-  leftAreaCenterLine.position.y = lineAltura;
+  leftAreaCenterLine.position.y = lineHeigth;
   leftAreaCenterLine.rotation.x = rotationX;
-  leftAreaCenterLine.position.x = fieldComprimento / 2 - areaComprimento;
+  leftAreaCenterLine.position.x = fieldLength / 2 - areaLength;
 
   leftAreaCenterLine.castShadow = true;
   leftAreaCenterLine.receiveShadow = true;
   scene.add(leftAreaCenterLine);
 
-  const leftAreaSupLine = new THREE.Mesh(
-    new THREE.BoxGeometry(areaComprimento, lineLargura, lineAltura),
-    new THREE.MeshPhongMaterial({ color: 0xffffff })
-  );
+  const leftAreaSupLine = createArea(areaLength, lineWidth, lineHeigth);
 
-  leftAreaSupLine.position.y = lineAltura;
+  leftAreaSupLine.position.y = lineHeigth;
   leftAreaSupLine.rotation.x = rotationX;
-  leftAreaSupLine.position.x = fieldComprimento / 2 - areaComprimento / 2;
-  leftAreaSupLine.position.z = -(areaLargura / 2) + 0.5;
+  leftAreaSupLine.position.x = fieldLength / 2 - areaLength / 2;
+  leftAreaSupLine.position.z = -(areaWidth / 2) + 0.5;
 
   leftAreaSupLine.castShadow = true;
   leftAreaSupLine.receiveShadow = true;
   scene.add(leftAreaSupLine);
 
-  const leftAreaInfLine = new THREE.Mesh(
-    new THREE.BoxGeometry(areaComprimento, lineLargura, lineAltura),
-    new THREE.MeshPhongMaterial({ color: 0xffffff })
-  );
+  const leftAreaInfLine = createArea(areaLength, lineWidth, lineHeigth);
 
-  leftAreaInfLine.position.y = lineAltura;
+  leftAreaInfLine.position.y = lineHeigth;
   leftAreaInfLine.rotation.x = rotationX;
-  leftAreaInfLine.position.x = fieldComprimento / 2 - areaComprimento / 2;
-  leftAreaInfLine.position.z = areaLargura / 2 - 0.5;
+  leftAreaInfLine.position.x = fieldLength / 2 - areaLength / 2;
+  leftAreaInfLine.position.z = areaWidth / 2 - 0.5;
 
   leftAreaInfLine.castShadow = true;
   leftAreaInfLine.receiveShadow = true;
@@ -500,7 +463,7 @@ const createPlayers = (() => {
     const ball = new Physijs.CylinderMesh(
       new THREE.CylinderGeometry(ballSize, ballSize, height, 32),
       playerMaterial(0x4a4949),
-      1 // mass
+      1
     );
 
     gk1.receiveShadow = true;
@@ -554,11 +517,11 @@ const createPlayers = (() => {
 
     gk1.position.z = 0;
     gk1.position.y = height * 1.5;
-    gk1.position.x = fieldComprimento / 2 - 2;
+    gk1.position.x = fieldLength / 2 - 2;
 
     gk2.position.z = 0;
     gk2.position.y = height * 1.5;
-    gk2.position.x = -fieldComprimento / 2 + 2;
+    gk2.position.x = -fieldLength / 2 + 2;
 
     scene.add(gk1);
     scene.add(gk2);
