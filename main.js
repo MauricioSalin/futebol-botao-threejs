@@ -7,7 +7,6 @@ let initScene,
   initEventHandling,
   render,
   renderer,
-  renderStats,
   scene,
   camera,
   blocks = [],
@@ -68,7 +67,6 @@ initScene = function () {
     }
 
     scene.simulate(undefined, 1);
-    physicsStats.update();
   });
 
   //AJUSTES DE CAMERA
@@ -100,8 +98,10 @@ initScene = function () {
   dirLight.shadowCameraTop = -30;
   dirLight.shadowCameraRight = 30;
   dirLight.shadowCameraBottom = 30;
+
   dirLight.shadowCameraNear = 20;
   dirLight.shadowCameraFar = 200;
+
   dirLight.shadowBias = -0.001;
   dirLight.shadowMapWidth = dirLight.shadowMapHeight = 2048;
   dirLight.shadowDarkness = 0.5;
